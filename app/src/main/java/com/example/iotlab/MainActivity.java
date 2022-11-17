@@ -20,7 +20,7 @@ import java.nio.charset.Charset;
 public class MainActivity extends AppCompatActivity {
 
     MQTTHelper mqttHelper;
-    TextView txtTemp, txtBrig;
+    TextView txtTemp, txtBrig, txtHumid, txtMois, txtAI;
     LabeledSwitch btnLED, btnPUMP;
 
     @Override
@@ -30,6 +30,10 @@ public class MainActivity extends AppCompatActivity {
 
         txtTemp = findViewById(R.id.txtTemperature);
         txtBrig = findViewById(R.id.txtBrightness);
+        txtHumid = findViewById(R.id.txtHumidity);
+        txtMois = findViewById(R.id.txtMoisture);
+        txtAI = findViewById(R.id.txtAI);
+
         btnLED = findViewById(R.id.button1);
         btnPUMP = findViewById(R.id.button2);
 
@@ -39,6 +43,14 @@ public class MainActivity extends AppCompatActivity {
                 if (isOn == true) {
                     sendDataMQTT("vynguyen5689/feeds/button1", "1");
                 } else sendDataMQTT("vynguyen5689/feeds/button1", "0");
+            }
+        });
+        btnPUMP.setOnToggledListener(new OnToggledListener() {
+            @Override
+            public void onSwitched(ToggleableView toggleableView, boolean isOn) {
+                if (isOn == true) {
+                    sendDataMQTT("vynguyen5689/feeds/button2", "1");
+                } else sendDataMQTT("vynguyen5689/feeds/button2", "0");
             }
         });
         startMQTT();
@@ -64,10 +76,24 @@ public class MainActivity extends AppCompatActivity {
                     txtTemp.setText(message.toString() + "°C");
                 } else if (topic.contains("sensor2")) {
                     txtBrig.setText(message.toString() + " lx");
+                } else if (topic.contains("sensor3")) {
+                    txtMois.setText(message.toString() + " %");
+                } else if (topic.contains("sensor4")) {
+                    txtHumid.setText(message.toString() + " %");
                 } else if (topic.contains("button1")) {
                     if (message.toString().equals("1"))
                         btnLED.setOn(true);
                     else btnLED.setOn(false);
+                } else if (topic.contains("button2")) {
+                    if (message.toString().equals("1"))
+                        btnPUMP.setOn(true);
+                    else btnPUMP.setOn(false);
+                } else if (topic.contains("ai")) {
+                    if (message.toString().contains("0"))
+                        txtAI.setText("No mask");
+                    else if (message.toString().contains("1"))
+                        txtAI.setText("With mask");
+                    else txtAI.setText("No subject detected!");
                 }
             }
 
